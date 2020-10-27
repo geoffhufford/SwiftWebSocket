@@ -9,6 +9,10 @@ let package = Package(
         .library(name: "SwiftWebSocket", targets: ["SwiftWebSocket"])
     ],
     targets: [
-        .target(name: "SwiftWebSocket", dependencies: [])
+        .target(
+            name: "SwiftWebSocket",
+            path: "Sources/SwiftWebSocket",
+            exclude: []
+        )
     ]
 )
