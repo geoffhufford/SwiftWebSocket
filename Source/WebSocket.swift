@@ -13,6 +13,12 @@ import Foundation
 
 private let windowBufferSize = 0x2000
 
+// XCode 13 fix for MacOS
+// https://developer.apple.com/documentation/xcode-release-notes/xcode-13-release-notes
+func free(optional: UnsafeMutableRawPointer?) {
+    if let value = optional { Darwin.free(value) }
+}
+
 private class Payload {
     var ptr : UnsafeMutableRawPointer
     var cap : Int
@@ -422,7 +428,7 @@ private class Inflater {
     }
     deinit{
         _ = inflateEndG(&strm)
-        free(buffer)
+        free(optional: buffer)
     }
     func inflate(_ bufin : UnsafePointer<UInt8>, length : Int, final : Bool) throws -> (p : UnsafeMutablePointer<UInt8>, n : Int){
         var buf = buffer
@@ -484,7 +490,7 @@ private class Deflater {
     }
     deinit{
         _ = deflateEnd(&strm)
-        free(buffer)
+        free(optional: buffer)
     }
     /*func deflate(_ bufin : UnsafePointer<UInt8>, length : Int, final : Bool) -> (p : UnsafeMutablePointer<UInt8>, n : Int, err : NSError?){
         return (nil, 0, nil)
@@ -627,12 +633,12 @@ private class InnerWebSocket: Hashable {
         }
     }
     deinit{
-        if outputBytes != nil {
-            free(outputBytes)
-        }
-        if inputBytes != nil {
-            free(inputBytes)
-        }
+//        if outputBytes != nil {
+        free(optional: outputBytes)
+//        }
+//        if inputBytes != nil {
+        free(optional: inputBytes)
+//        }
         pthread_mutex_init(&mutex, nil)
     }
     @inline(__always) fileprivate func lock(){
